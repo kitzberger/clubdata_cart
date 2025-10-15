@@ -1,0 +1,4 @@
+*~
+*.bak
+.php-cs-fixer.cache
+WARP
