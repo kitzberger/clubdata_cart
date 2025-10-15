@@ -2,43 +2,13 @@
 
 namespace Medpzl\ClubdataCart\Utility;
 
-/**
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
-/**
- * Address Service
- *
- * @author CK
- */
+use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+
 class OrderUtility
 {
-    /**
-     * Persistence Manager
-     *
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
-     */
-    protected $persistenceManager;
-    /**
-     * Configuration Manager
-     *
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
-     */
-    protected $configurationManager;
-    /**
-     * Cart Repository
-     *
-     * @var \Extcode\Cart\Domain\Repository\CartRepository
-     */
-    protected $cartRepository;
     /**
      * Cart Settings
      *
@@ -52,12 +22,14 @@ class OrderUtility
      * @var \Extcode\Cart\Domain\Model\Order\Item
      */
     protected $orderItem = null;
+
     /**
      * Cart
      *
      * @var \Extcode\Cart\Domain\Model\Cart\Cart
      */
     protected $cart = null;
+
     /**
      * CartFHash
      *
@@ -65,33 +37,21 @@ class OrderUtility
      */
     protected $cartFHash = '';
 
-    /**
-     * ProgramRepository
-     *
-     * @var \Medpzl\Clubdata\Domain\Repository\ProgramRepository
-     */
-    protected $programRepository = null;
-    /**
-     * Intitialize
-     */
     public function __construct(
-        private \Medpzl\Clubdata\Domain\Repository\ProgramRepository $pogramRepository,
-        \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager,
-        \Medpzl\Clubdata\Domain\Repository\ProgramRepository $programRepository,
-        \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager,
-        private \TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder $uriBuilder
+        protected ProgramRepository $pogramRepository,
+        protected PersistenceManager $persistenceManager,
+        protected ProgramRepository $programRepository,
+        protected ConfigurationManagerInterface $configurationManager,
+        private UriBuilder $uriBuilder
     ) {
-        $this->configurationManager = $configurationManager;
         $this->cartConf = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'Cart'
         );
         $this->settings = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
             'ClubdataCart'
         );
-        $this->persistenceManager = $persistenceManager;
-        $this->programRepository = $programRepository;
     }
 
     /**
@@ -119,7 +79,6 @@ class OrderUtility
             $this->programRepository->update($program);
         }
     }
-
 
     /**
      * CheckStock - Signal Slot Function

@@ -6,7 +6,6 @@
     "require": {
         "typo3/cms-core": "^13.4",
         "extcode/cart": "^11.5"
-        "medpzl/clubdata": "*"
     },
     "autoload": {
         "psr-4": {
