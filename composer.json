@@ -1,0 +1,24 @@
+{
+    "name": "medpzl/clubdata-cart",
+    "type": "typo3-cms-extension",
+    "description": "",
+    "authors": [],
+    "require": {
+        "typo3/cms-core": "^13.4",
+        "extcode/cart": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Medpzl\\ClubdataCart\\": "Classes"
+        }
+    },
+    "replace": {
+        "clubdata_cart": "self.version",
+        "typo3-ter/clubdata-cart": "self.version"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "clubdata_cart"
+        }
+    }
+}

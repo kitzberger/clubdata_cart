@@ -1,0 +1,22 @@
+<f:be.container loadJQuery="TRUE" loadExtJsTheme="FALSE"
+				includeCssFiles="{0: '{f:uri.resource(path:\'Css/Backend.css\')}'}"
+				includeJsFiles="{0: '{f:uri.resource(path:\'Js/clubdatacart.js\')}'}"
+>
+    <div class="typo3-fullDoc">
+		<div id="typo3-docheader">
+			<div id="typo3-docheader-row2">
+				<div class="docheader-row2-left">
+				</div>
+                <!--<div class="docheader-row2-right">
+                    <f:be.pagePath />
+                    <f:be.pageInfo />
+                </div>-->
+			</div>
+		</div>
+		<div id="typo3-docbody">
+			<div id="typo3-inner-docbody">
+				<f:render section="main" />
+			</div>
+		</div>
+	</div>
+</f:be.container>

@@ -1,0 +1,7 @@
+plugin.tx_clubdatacart {
+    view {
+        templateRootPath = EXT:clubdata_cart/Resources/Private/Templates/Backend/
+        partialRootPath = EXT:clubdata_cart/Resources/Private/Partials/Backend/
+        layoutRootPath = EXT:clubdata_cart/Resources/Private/Layouts/Backend/
+    }
+}

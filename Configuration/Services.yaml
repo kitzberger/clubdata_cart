@@ -1,0 +1,19 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Medpzl\ClubdataCart\:
+    resource: '../Classes/*'
+
+  Medpzl\ClubdataCart\EventListener\BeforeShowCart:
+    tags:
+      - name: event.listener
+        identifier: 'clubdata_cart-BeforeShowCart'
+
+  Medpzl\ClubdataCart\EventListener\RetrieveProductsFromRequest:
+    tags:
+      - name: event.listener
+        identifier: 'clubdata_cart-RetrieveProductsFromRequest'
+

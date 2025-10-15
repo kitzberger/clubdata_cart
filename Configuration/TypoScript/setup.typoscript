@@ -1,0 +1,22 @@
+plugin.tx_clubdatacart {
+    view {
+        templateRootPaths {
+            0 = EXT:clubdata_cart/Resources/Private/Templates/
+            1 = {$plugin.tx_clubdatacart.view.templateRootPath}
+        }
+        partialRootPaths  {
+            0 = EXT:clubdata_cart/Resources/Private/Partials/
+            1 = {$plugin.tx_clubdatacart.view.partialRootPath}
+        }
+        layoutRootPaths {
+            0 = EXT:clubdata_cart/Resources/Private/Layouts/
+            1 = {$plugin.tx_clubdatacart.view.layoutRootPath}
+        }
+    }
+
+    persistence {
+        storagePid < plugin.tx_ckclubdata.persistence.storagePid
+    }
+}
+
+module.tx_clubdatacart  < plugin.tx_ckclubdata
