@@ -103,13 +103,6 @@ class OrderUtility
      */
     public function changeOrderItemBeforeSaving($params): void
     {
-        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($params);
-        /*$request = \TYPO3\CMS\Core\Utility\GeneralUtility::_GP('tx_cart_cart');
-        if ($request['billing_address_to_feuser']) $addrToFeUser = true;
-        if ($addrToFeUser) {
-            $params['orderItem']->getBillingAddress()->setAdditional('tofeuser');
-        }*/
-
         foreach ($params['orderItem']->getProducts() as $product) {
             $program = $this->programRepository->findByUid($product->getSku());
             $sold = $program->getsoldTickets();
@@ -119,7 +112,6 @@ class OrderUtility
             $new += $want;
             $init++; //startnummer Neues Ticket
             $counter = $this->settings['ticket']['numberPrefix'] . sprintf($this->settings['ticket']['numberFormat'], $init); // Kartenzähler
-            \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($counter);
             $program_date = $program->getDateTime()->format('ymdH');
             $ticket_number = $this->addEanCheck($program_date . $counter);
             $program->setsoldTickets($new);
@@ -138,53 +130,24 @@ class OrderUtility
      */
     public function checkStock($params)
     {
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($params);
         $product = $params['cartProduct'];
         $product->setHandleStock(true);
         $program = $this->programRepository->findByUid($product->getSku());
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($program);
+
         $stock = 0;
         if ($program->getmaxTickets() > 0) {
             $stock = $program->getmaxTickets() - $program->getsoldTickets();
         }
         $want = $product->getQuantity();
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($sold);
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($stock);
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($want);
+
         if ($stock==0 or $stock < $want) {
             $uri = $this->uriBuilder->reset()
                ->setTargetPageUid($this->cartConf['settings']['cart']['pid'])
                 ->setArguments(['tx_cart_cart[quantity_error]'=>$want,'tx_cart_cart[action]'=>'updateCart'])
                 ->setCreateAbsoluteUri(true)
                 ->build();
-            //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($uri);
-            //exit;
-            //$this->redirect('updateCart');
-            //\TYPO3\CMS\Core\Utility\HttpUtility::redirect($uri);
-            /*$ok = false;
-            \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($stock);
-            $message = \TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate(
-                'tx_cart.error.stock_handling.add',
-                'cart'
-            );
-            $error = [
-                'message' => $message,
-                'severity' => \TYPO3\CMS\Core\Messaging\AbstractMessage::ERROR
-            ];
-
-            $errors[] = $error;
-            //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($errors);
-            //return $errors;*/
         }
-        //$uri = $this->uriBuilder->reset()
-        //         ->setTargetPageUid(53)
-        //         ->setArguments(array('action'=>'updateCart','controller'=>'cart'))
-        //         ->setCreateAbsoluteUri(true)
-        //         ->build();
-        //\TYPO3\CMS\Core\Utility\HttpUtility::redirect($uri);
 
-        //$this->persistenceManager->persistAll();
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($product);
         return [$params];
     }
 
@@ -207,6 +170,4 @@ class OrderUtility
         $code .= $key;
         return $code;
     }
-
-
 }

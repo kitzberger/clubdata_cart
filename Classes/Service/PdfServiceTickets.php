@@ -3,50 +3,21 @@
 namespace Medpzl\ClubdataCart\Service;
 
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
+use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
 
-/**
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
-
-/**
- * Pdf Service
- *
- * @author Daniel Lorenz <ext.cart@extco.de>
- */
 class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
 {
-    /**
-     * ProgramRepository
-     *
-     * @var \TYPO3\CkClubdata\Domain\Repository\ProgramRepository
-     */
-    protected $programRepository = null;
-
     public function __construct(
-        private \TYPO3\CkClubdata\Domain\Repository\ProgramRepository $pogramRepository,
-        \TYPO3\CkClubdata\Domain\Repository\ProgramRepository $programRepository
+        protected ProgramRepository $programRepository
     ) {
-        $this->programRepository = $programRepository;
     }
+
     /**
      * @param string $pdfType
      * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
      */
     protected function renderPdf(OrderItem $orderItem, string $pdfType): void
     {
-
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($orderItem);
-        //exit;
-        //setlocale(LC_ALL, 'de_DE.UTF8');
         $pluginSettings = $this->configurationManager->getConfiguration(
             \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'cartpdf'
@@ -62,7 +33,6 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
             $this->pdf->setPrintHeader(false);
         } else {
             if ($pdfType == 'delivery') {
-                // $this->pdf->setHeaderMargin($this->pdfSettings['header']['margin']);
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, $this->pdfSettings['ticket']['ticket']['margin-top'], $this->pdfSettings['ticket']['ticket']['margin-right']);
             } else {
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
@@ -161,11 +131,7 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
             $config['spacingY'] = 5;
         }
 
-
         $content = $this->renderTicketBody($pdfType, $orderItem);
-
-
-        //$this->pdf->writeHtmlCellWithConfig($content, $config);
     }
 
     /**
@@ -178,15 +144,12 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
      */
     protected function renderTicketBody($pdfType, $orderItem)
     {
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($orderItem);
-        //exit;
-
         $bodyOut = '';
         $ypos = 30;
-        $anz=0;
+        $anz = 0;
         foreach ($orderItem->getProducts() as $product) {
             $program = $this->programRepository->findByUid($product->getSku());
-            $base =substr($product->getproductType(), 0, -1);
+            $base = substr($product->getproductType(), 0, -1);
             $code = $product->getproductType();
             for ($i = 0; $i < $product->getCount(); $i++) {
                 $mod = false;
@@ -197,7 +160,7 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
                     $ypos = 30;
                 }
                 if ($i) {
-                    $code=$this->addEanCheck($base+=1);
+                    $code = $this->addEanCheck($base += 1);
                 }
 
                 //define barcode style
@@ -219,27 +182,21 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
                 ];
                 foreach ($this->pdfSettings['ticket'] as $partName => $partConfig) {
                     if ($anz && !$mod) {
-                        $partConfig['positionY'] = $anz*80;
+                        $partConfig['positionY'] = $anz * 80;
                     }
                     $templatePath = '/TicketPdf/';
-                    $assignToView = ['product' => $product, 'program' => $program, 'config' => $partConfig,'code'=> $code, 'orderItem' => $orderItem];
+                    $assignToView = ['product' => $product, 'program' => $program, 'config' => $partConfig,'code' => $code, 'orderItem' => $orderItem];
 
                     $this->pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
-                    //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($partConfig);
-                        //exit;
                 }
 
                 $this->pdf->write1DBarcode($code, 'EAN13', '150', $ypos, '', 18, 0.4, $style, 'N');
-                //if ($mod) $ypos = 30;
-                //  else $ypos += 80;
                 $anz++;
             }
         }
 
         return $bodyOut;
     }
-
-
 
     protected function addEanCheck($code)
     {
@@ -260,5 +217,4 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
         $code .= $key;
         return $code;
     }
-
 }
