@@ -3,6 +3,7 @@
 namespace Medpzl\ClubdataCart\Service;
 
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
+use Medpzl\ClubdataCart\Utility\OrderUtility;
 use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
 
 class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
@@ -160,7 +161,7 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
                     $ypos = 30;
                 }
                 if ($i) {
-                    $code = $this->addEanCheck($base += 1);
+                    $code = OrderUtility::addEanCheck($base += 1);
                 }
 
                 //define barcode style
@@ -196,25 +197,5 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
         }
 
         return $bodyOut;
-    }
-
-    protected function addEanCheck($code)
-    {
-        $key = 0;
-        $mult = [1, 3];
-
-        for ($i = 0; $i < strlen($code); $i++) {
-            $key += substr($code, $i, 1) * $mult[$i % 2];
-        }
-
-        $key = 10 - ($key % 10);
-
-        if ($key == 10) {
-            $key = 0;
-        }
-
-        // in key steht die prüfziffer - an den code anhängen
-        $code .= $key;
-        return $code;
     }
 }

@@ -113,7 +113,7 @@ class OrderUtility
             $init++; //startnummer Neues Ticket
             $counter = $this->settings['ticket']['numberPrefix'] . sprintf($this->settings['ticket']['numberFormat'], $init); // Kartenzähler
             $program_date = $program->getDateTime()->format('ymdH');
-            $ticket_number = $this->addEanCheck($program_date . $counter);
+            $ticket_number = self::addEanCheck($program_date . $counter);
             $program->setsoldTickets($new);
             $product->setproductType($ticket_number);
             $this->programRepository->update($program);
@@ -151,10 +151,10 @@ class OrderUtility
         return [$params];
     }
 
-    private function addEanCheck($code)
+    public static function addEanCheck($code)
     {
         $key = 0;
-        $mult = [ 1, 3 ];
+        $mult = [1, 3];
 
         for ($i = 0; $i < strlen($code); $i++) {
             $key += substr($code, $i, 1) * $mult[$i % 2];
