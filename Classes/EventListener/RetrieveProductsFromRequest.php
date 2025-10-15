@@ -7,7 +7,7 @@ namespace Medpzl\ClubdataCart\EventListener;
 use Extcode\Cart\Domain\Model\Cart\Product;
 use Extcode\Cart\Domain\Model\Cart\TaxClass;
 use Extcode\Cart\Event\RetrieveProductsFromRequestEvent;
-use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
+use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 

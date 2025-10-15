@@ -7,7 +7,7 @@ use Extcode\Cart\Domain\Repository\Order\ItemRepository;
 use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
 use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
+use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 

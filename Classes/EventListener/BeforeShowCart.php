@@ -6,8 +6,8 @@ namespace Medpzl\ClubdataCart\EventListener;
 
 use Extcode\Cart\Domain\Model\Order\BillingAddress;
 use Extcode\Cart\Event\Cart\BeforeShowCartEvent;
-use TYPO3\CkClubdata\Domain\Model\FrontendUser;
-use TYPO3\CkClubdata\Domain\Repository\FrontendUserRepository;
+use Medpzl\Clubdata\Domain\Model\FrontendUser;
+use Medpzl\Clubdata\Domain\Repository\FrontendUserRepository;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 

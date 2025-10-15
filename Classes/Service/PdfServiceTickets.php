@@ -4,7 +4,7 @@ namespace Medpzl\ClubdataCart\Service;
 
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Medpzl\ClubdataCart\Utility\OrderUtility;
-use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
+use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 
 class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
 {

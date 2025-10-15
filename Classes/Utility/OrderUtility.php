@@ -68,16 +68,16 @@ class OrderUtility
     /**
      * ProgramRepository
      *
-     * @var \TYPO3\CkClubdata\Domain\Repository\ProgramRepository
+     * @var \Medpzl\Clubdata\Domain\Repository\ProgramRepository
      */
     protected $programRepository = null;
     /**
      * Intitialize
      */
     public function __construct(
-        private \TYPO3\CkClubdata\Domain\Repository\ProgramRepository $pogramRepository,
+        private \Medpzl\Clubdata\Domain\Repository\ProgramRepository $pogramRepository,
         \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager,
-        \TYPO3\CkClubdata\Domain\Repository\ProgramRepository $programRepository,
+        \Medpzl\Clubdata\Domain\Repository\ProgramRepository $programRepository,
         \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager,
         private \TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder $uriBuilder
     ) {
