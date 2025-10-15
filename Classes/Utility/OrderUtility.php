@@ -140,10 +140,10 @@ class OrderUtility
         }
         $want = $product->getQuantity();
 
-        if ($stock==0 or $stock < $want) {
+        if ($stock == 0 or $stock < $want) {
             $uri = $this->uriBuilder->reset()
                ->setTargetPageUid($this->cartConf['settings']['cart']['pid'])
-                ->setArguments(['tx_cart_cart[quantity_error]'=>$want,'tx_cart_cart[action]'=>'updateCart'])
+                ->setArguments(['tx_cart_cart[quantity_error]' => $want,'tx_cart_cart[action]' => 'updateCart'])
                 ->setCreateAbsoluteUri(true)
                 ->build();
         }

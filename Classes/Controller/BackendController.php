@@ -2,14 +2,14 @@
 
 namespace Medpzl\ClubdataCart\Controller;
 
-use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
-use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
 use Extcode\Cart\Domain\Model\Order\Item;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository;
+use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
+use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CkClubdata\Domain\Repository\ProgramRepository;
 
 class BackendController extends ActionController
 {
@@ -45,7 +45,7 @@ class BackendController extends ActionController
         $groups = $GLOBALS['BE_USER']->user['usergroup'];
 
         foreach ($denies as $deny) {
-            if (strpos($groups, $deny) !==false) {
+            if (strpos($groups, $deny) !== false) {
                 $usercheck = true;
             }
         }
@@ -74,7 +74,7 @@ class BackendController extends ActionController
         $uids = [];
 
         foreach ($programs as $program) {
-            $uids[]=$program->getUid();
+            $uids[] = $program->getUid();
         }
 
         $uids = array_unique($uids);
@@ -85,9 +85,9 @@ class BackendController extends ActionController
         $failed = [];
         foreach ($orders as $order) {
             $item = $order->getItem();
-            if ($item->getShipping()->getStatus()=='shipped'
-                    and $item->getPayment()->getStatus()=='paid') { //achtung Producte unten werden geschrieben
-                $filtered[]=$order;
+            if ($item->getShipping()->getStatus() == 'shipped' &&
+                $item->getPayment()->getStatus() == 'paid') {
+                $filtered[] = $order;
             } else {
                 $failed[] = $order;
             }
@@ -108,7 +108,7 @@ class BackendController extends ActionController
             $programs = $this->programRepository->findWithinMonth([], 0, 0, 1, 'now');
         }
 
-        $i=0;
+        $i = 0;
         $rows = [];
         foreach ($programs as $program) {
             $uids = [];
@@ -125,32 +125,32 @@ class BackendController extends ActionController
 
             foreach ($orders as $order) {
                 switch ($order->getItem()->getPayment()->getStatus()) {
-                case 'paid':
-                    $disposed += $order->getCount();
-                    break;
-                case 'open':
-                    $open += $order->getCount();
-                    break;
-                case 'canceled':
-                    $cancelled += $order->getCount();
-                    break;
-                case 'pending':
-                    $pending += $order->getCount();
-                    break;
-            }
+                    case 'paid':
+                        $disposed += $order->getCount();
+                        break;
+                    case 'open':
+                        $open += $order->getCount();
+                        break;
+                    case 'canceled':
+                        $cancelled += $order->getCount();
+                        break;
+                    case 'pending':
+                        $pending += $order->getCount();
+                        break;
+                }
                 switch ($order->getItem()->getShipping()->getStatus()) {
-                case 'shipped':
-                    $shipped += $order->getCount();
-                    break;
-                default:
-                    $not_shipped += $order->getCount();
-                    break;
-            }
+                    case 'shipped':
+                        $shipped += $order->getCount();
+                        break;
+                    default:
+                        $not_shipped += $order->getCount();
+                        break;
+                }
             }
             if (count($orders)) {
                 $mark = '';
                 $i++;
-                $rows[]=[
+                $rows[] = [
                  'uid' => $uid ,
                  'mark' => $mark,
                  'title' => $order->getTitle(),
@@ -176,7 +176,7 @@ class BackendController extends ActionController
     {
         $uids = [];
         $uid = $this->request->getArgument('showUid');
-        $uids[]=$uid;
+        $uids[] = $uid;
         //$program = $this->programRepository->findUid($uid);
         $orders = $this->productRepository->findSku($uids);
         //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($orders);
@@ -224,7 +224,7 @@ class BackendController extends ActionController
         $data = $args['ticketCheck'];
         foreach ($data as $key => $value) {
             if ($value['disposed'] != $value['disposed-old']) {
-                $values[$key]=$value['disposed'];
+                $values[$key] = $value['disposed'];
             }
         }
 
@@ -306,16 +306,15 @@ class BackendController extends ActionController
             foreach ($filtered_tickets as $object) {
                 if ($object->getItem()) {
                     $names[] = $object->getItem()->getBillingAddress()->getLastName();
-                } //any object field
+                }
             }
 
             array_multisort($names, SORT_ASC, $filtered_tickets);
 
             $fehler = 0;
             foreach ($failed as $order) {
-                if (
-                $order->getItem()->getShipping()->getStatus()  != 'shipped'
-                or $order->getItem()->getPayment()->getStatus()!='paid') {
+                if ($order->getItem()->getShipping()->getStatus() != 'shipped' ||
+                    $order->getItem()->getPayment()->getStatus() != 'paid') {
                     $fehler += $order->getCount();
                 }
             }
@@ -327,7 +326,6 @@ class BackendController extends ActionController
         return $this->htmlResponse();
     }
 
-
     public function refundCheckOrdersAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
@@ -337,8 +335,8 @@ class BackendController extends ActionController
             $orders = $this->itemRepository->findAll();
             foreach ($orders as $order) {
                 foreach ($order->getProducts() as $product) {
-                    if ($product->getSku()==$sku) {
-                        if ($order->getPayment()->getStatus()=='paid') {
+                    if ($product->getSku() == $sku) {
+                        if ($order->getPayment()->getStatus() == 'paid') {
                             $filtered_orders[] = $order;
                         }
                     }
@@ -359,8 +357,8 @@ class BackendController extends ActionController
             $orders = $this->itemRepository->findAll();
             foreach ($orders as $order) {
                 foreach ($order->getProducts() as $product) {
-                    if ($product->getSku()==$sku) {
-                        if ($order->getPayment()->getStatus()=='paid') {
+                    if ($product->getSku() == $sku) {
+                        if ($order->getPayment()->getStatus() == 'paid') {
                             $filtered_orders[] = $order;
                         }
                     }
@@ -381,7 +379,7 @@ class BackendController extends ActionController
         return $this->htmlResponse();
     }
 
-    public function handleRefund(Item $orderItem, $sku=''): void
+    public function handleRefund(Item $orderItem, $sku = ''): void
     {
         $payment = $orderItem->getPayment();
         $provider = $payment->getProvider();

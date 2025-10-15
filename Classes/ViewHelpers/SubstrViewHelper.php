@@ -26,7 +26,7 @@ class SubstrViewHelper extends AbstractViewHelper
         $string = $this->arguments['string'];
         $start = $this->arguments['start'];
         $length = $this->arguments['length'];
-        
+
         if ($length !== null) {
             return substr($string, $start, $length);
         } else {

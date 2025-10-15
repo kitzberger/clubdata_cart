@@ -4,8 +4,8 @@ namespace Medpzl\ClubdataCart\ViewHelpers;
 
 use Extcode\Cart\Domain\Model\Cart\Cart;
 use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 class CheckShippingViewHelper extends AbstractViewHelper
 {
@@ -23,7 +23,7 @@ class CheckShippingViewHelper extends AbstractViewHelper
     public function render()
     {
         $cart = $this->arguments['cart'];
-        
+
         $cartConf = $this->configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'Cart'

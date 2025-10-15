@@ -6,17 +6,18 @@ namespace Medpzl\ClubdataCart\EventListener;
 
 use Extcode\Cart\Domain\Model\Order\BillingAddress;
 use Extcode\Cart\Event\Cart\BeforeShowCartEvent;
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CkClubdata\Domain\Model\FrontendUser;
 use TYPO3\CkClubdata\Domain\Repository\FrontendUserRepository;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final class BeforeShowCart
 {
     public function __construct(
         private readonly Context $context,
         private readonly FrontendUserRepository $frontendUserRepository
-    ) {}
+    ) {
+    }
 
     /**
      * Enrich the cart variables by the frontend users data as billing address.

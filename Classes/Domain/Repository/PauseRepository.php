@@ -9,8 +9,8 @@ class PauseRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
         $query = $this->createQuery();
         $query->setOrderings(['fromdate' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_ASCENDING]);
         $and_constraints = [];
-        $and_constraints[]=$query->greaterThanOrEqual('todate', $date);
-        $and_constraints[]=$query->lessThan('fromdate', $date);
+        $and_constraints[] = $query->greaterThanOrEqual('todate', $date);
+        $and_constraints[] = $query->lessThan('fromdate', $date);
         if ($and_constraints) {
             $query->matching($query->logicalAnd($and_constraints));
         }
