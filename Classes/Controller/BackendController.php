@@ -7,6 +7,7 @@ use Extcode\Cart\Domain\Repository\Order\ItemRepository;
 use Medpzl\ClubdataCart\Domain\Model\Order\Product;
 use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
 use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
+use Medpzl\ClubdataCart\Utility\OrderUtility;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
@@ -28,7 +29,7 @@ class BackendController extends ActionController
         protected ProgramRepository $programRepository,
         protected ItemRepository $itemRepository,
         protected ProductRepository $productRepository,
-        ConfigurationManagerInterface $configurationManager,
+        protected ConfigurationManagerInterface $configurationManager,
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
         private readonly PageRenderer $pageRenderer,
         private readonly ViewFactoryInterface $viewFactory
@@ -37,11 +38,11 @@ class BackendController extends ActionController
 
     protected function initializeAction(): void
     {
+        // TODO Necessary?!
         $cartConfiguration = $this->configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'Cart'
         );
-
         if (isset($cartConfiguration['settings']['cart']['pid'])) {
             $this->settings['cart']['pid'] = $cartConfiguration['settings']['cart']['pid'];
         }
@@ -50,9 +51,9 @@ class BackendController extends ActionController
     // TODO why called interface? Isn't that a classic indexAction()?
     public function interfaceAction(): ResponseInterface
     {
-        $this->now = $this->settings['scanner']['showFrom'] ?? 'now';
-
-        $exportPrograms = $this->filterData();
+        $exportPrograms = $this->filterData(
+            $this->settings['scanner']['showFrom'] ?? 'now'
+        );
 
         $usercheck = false;
         $denies = explode(',', $this->settings['refund']['denyGroups'] ?? '');
@@ -65,8 +66,9 @@ class BackendController extends ActionController
         }
         $refundPrograms = [];
         if (!$usercheck) {
-            $this->now = $this->settings['refund']['showFrom'] ?? 'now';
-            $refundPrograms = $this->filterData();
+            $refundPrograms = $this->filterData(
+                $this->settings['refund']['showFrom'] ?? 'now'
+            );
         }
 
         // TODO: necessary!?
@@ -86,15 +88,22 @@ class BackendController extends ActionController
         $moduleTemplate->assign('exportPrograms', $exportPrograms);
         $moduleTemplate->assign('refundPrograms', $refundPrograms);
         $moduleTemplate->assign('options', $options);
+        $moduleTemplate->assign('settings', $this->settings);
 
         return $moduleTemplate->renderResponse('Backend/Interface');
     }
 
-    protected function filterData()
+    protected function filterData($when)
     {
-        $programs = $this->programRepository->findWithinMonth([], 0, 0, 1, $this->now);
-        $uids = [];
+        $programs = $this->programRepository->findWithinMonth(
+            filter: [],
+            fromTimestamp: 0,
+            toTimestamp: 0,
+            greaternow: 1,
+            now: $when
+        );
 
+        $uids = [];
         foreach ($programs as $program) {
             $uids[] = $program->getUid();
         }
@@ -117,7 +126,10 @@ class BackendController extends ActionController
             } else {
                 if ($item->getShipping()->getStatus() == 'shipped' &&
                     $item->getPayment()->getStatus() == 'paid') {
-                    $filtered[] = $order;
+                    $filtered[] = [
+                        'title' => $order->getUid() . ': ' . $order->getTitle(),
+                        'uid' => $order->getUid(),
+                    ];
                 } else {
                     $failed[] = $order;
                 }
@@ -303,11 +315,15 @@ class BackendController extends ActionController
         foreach ($orders as $order) {
             if ($order->getItem()->getShipping()->getStatus() == 'shipped'
                 && $order->getItem()->getPayment()->getStatus() == 'paid') {
-                if ($order->getCount() > 1) {
-                    $ticket_number = substr($order->getProductType(), 0, -1);
+                if ($order->getCount() === 1) {
+                    // only 1 ticket
                     $tickets[] = $order;
+                } else {
+                    // this ticket times its amount
+                    $tickets[] = $order;
+                    $ticket_number = substr($order->getProductType(), 0, -1);
                     for ($i = 1; $i < $order->getCount(); $i++) {
-                        $code = $this->addEanCheck($ticket_number += 1);
+                        $code = OrderUtility::addEanCheck($ticket_number += 1);
                         $orderProduct = GeneralUtility::makeInstance(
                             Product::class,
                             $order->getSku(),
@@ -317,19 +333,17 @@ class BackendController extends ActionController
                         $orderProduct->setProductType($code);
                         $tickets[] = $orderProduct;
                     }
-                } else {
-                    $tickets[] = $order;
-                } // only 1 ticket
+                }
             }
         }
 
+        // TODO wtf?
         foreach ($tickets as $ticket) {
             $filtered_tickets[] = $ticket;
         }
 
-        $message = '';
         if (count($tickets) != count($filtered_tickets)) {
-            $message = "Achtung: doppelte Ticketnummern vorhanden";
+            $this->addFlashMessages('Achtung: doppelte Ticketnummern vorhande!', 'Warning', ContextualFeedbackSeverity::WARNING);
         }
 
         if ($format === 'html') { // Druckausgabe
@@ -340,8 +354,10 @@ class BackendController extends ActionController
                 }
             }
 
+            // TODO wtf?
             array_multisort($names, SORT_ASC, $filtered_tickets);
 
+            // TODO $failed doesn't contain anything
             $failures = 0;
             foreach ($failed as $order) {
                 if ($order->getItem()->getShipping()->getStatus() != 'shipped' ||
@@ -354,7 +370,6 @@ class BackendController extends ActionController
             $moduleTemplate->setTitle('Ticket Export');
             $moduleTemplate->assignMultiple([
                 'orders' => $filtered_tickets,
-                'message' => $message,
                 'failures' => $failures,
             ]);
             return $moduleTemplate->renderResponse('Backend/TicketExport');
@@ -470,26 +485,6 @@ class BackendController extends ActionController
         // $event = new RefundEvent($data);
         // $this->eventDispatcher->dispatch($event);
         exit;
-    }
-
-    protected function addEanCheck($code)
-    {
-        $key = 0;
-        $mult = [1, 3];
-
-        for ($i = 0; $i < strlen($code); $i++) {
-            $key += substr($code, $i, 1) * $mult[$i % 2];
-        }
-
-        $key = 10 - ($key % 10);
-
-        if ($key == 10) {
-            $key = 0;
-        }
-
-        // in key steht die prüfziffer - an den code anhängen
-        $code .= $key;
-        return $code;
     }
 
     private function addFlashMessages($message, $header, $severity)

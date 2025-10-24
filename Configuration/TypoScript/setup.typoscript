@@ -1,0 +1,20 @@
+plugin.tx_clubdatacart {
+    persistence {
+        storagePid < plugin.tx_clubdata.persistence.storagePid
+    }
+    settings {
+        ticket.numberFormat = %03d
+        ticket.numberPrefix = 9
+    }
+}
+
+module.tx_clubdatacart {
+    persistence {
+        storagePid < plugin.tx_clubdata.persistence.storagePid
+    }
+    settings {
+        refund.showFrom = today -1 month
+        refund.denyGroups = 3
+        scanner.showFrom = today - 1 week
+    }
+}

@@ -1,11 +1,24 @@
-<f:if condition="{message}">
-    <p class="alert alert-warning">
-        {message}
-    </p>
-</f:if>
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
 
-<table>
-    <f:for each="{orders}" as="listItem" iteration="iterator">
-        <f:render partial="Partials/TicketExportItem" arguments="{listItem:listItem,settings:settings,iterator:iterator}" />
-    </f:for>
-</table>
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <h1>{orders.0.title}</h1>
+
+    <table>
+        <f:for each="{orders}" as="listItem" iteration="iterator">
+            <f:render partial="Partials/TicketExportItem" arguments="{listItem:listItem,settings:settings,iterator:iterator}" />
+        </f:for>
+    </table>
+
+    <f:link.action action="interface" class="btn btn-default">Zurück</f:link.action>
+    <a href="#" class="btn btn-primary" onclick="window.focus();window.print()">Liste Drucken</a>
+
+</f:section>

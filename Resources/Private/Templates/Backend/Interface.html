@@ -13,13 +13,16 @@
     <div class="tx-clubdatacart-mod">
         <div class="row mb-4">
             <div class="col-md-6">
-                <f:form method="post" action="ticketExport" name="ticketExport" format="txt">
-                    <f:form.hidden property="format" value="txt" />
+                <f:form method="post" action="ticketExport" name="ticketExport">
                     <div class="card">
                         <div class="card-header">
                             <h4>Scanner Export</h4>
                         </div>
                         <div class="card-body">
+                            <f:if condition="{settings.scanner.showFrom}">
+                                <p>Show from: {settings.scanner.showFrom}</p>
+                            </f:if>
+
                             <div class="form-group">
                                 <label for="programs_export">Veranstaltungen für Scanner Export:</label>
                                 <f:form.select id="programs_export"
@@ -27,9 +30,16 @@
                                                multiple="1"
                                                size="4"
                                                class="form-control"
+                                               optionValueField="uid"
                                                optionLabelField="title"
                                                options="{exportPrograms}"
                                                prependOptionValue="0" />
+                            </div>
+                            <div class="form-group">
+                                <label for="format">Veranstaltungen für Scanner Export:</label>
+                                <f:form.select id="format"
+                                               property="format"
+                                               options="{html:'HTML',txt:'Text'}" />
                             </div>
                             <f:form.submit value="Veranstaltungsdaten exportieren" class="btn btn-primary" />
                         </div>
@@ -44,6 +54,10 @@
                             <h4>Rückerstattung</h4>
                         </div>
                         <div class="card-body">
+                            <f:if condition="{settings.refund.showFrom}">
+                                <p>Show from: {settings.refund.showFrom}</p>
+                            </f:if>
+
                             <div class="form-group">
                                 <label for="programs_refund">Käufe Rückerstatten:</label>
                                 <f:form.select id="programs_refund"
@@ -51,6 +65,7 @@
                                                multiple="1"
                                                size="4"
                                                class="form-control"
+                                               optionValueField="uid"
                                                optionLabelField="title"
                                                options="{refundPrograms}"
                                                prependOptionValue="0" />
