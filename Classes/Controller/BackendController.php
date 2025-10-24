@@ -82,6 +82,10 @@ class BackendController extends ActionController
 
         $uids = array_unique($uids);
 
+        if (empty($uids)) {
+            return [];
+        }
+
         $orders = $this->productRepository->findSku($uids);
 
         $filtered = [];
