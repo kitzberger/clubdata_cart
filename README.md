@@ -12,4 +12,12 @@ and then add this extensions TypoScript to your sites template.
 
 ## Configuration
 
+### Template override?
+
+Via PageTS:
+
+```
+templates.medpzl/clubdata-cart.1761323647 = my-vendor/my-extension:Resources/Private/
+```
+
 t.b.c.
