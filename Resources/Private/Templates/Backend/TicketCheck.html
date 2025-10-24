@@ -1,0 +1,70 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <div class="tx-clubdatacart-mod">
+        <div class="card">
+            <div class="card-header">
+                <h4>Ticket Übersicht</h4>
+            </div>
+            <div class="card-body">
+                <f:if condition="{Rows}">
+                    <f:then>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Titel</th>
+                                    <th>Bezahlt</th>
+                                    <th>Offen</th>
+                                    <th>Storniert</th>
+                                    <th>Ausstehend</th>
+                                    <th>Versendet</th>
+                                    <th>Nicht versendet</th>
+                                    <th>Club Verkauft</th>
+                                    <th>Club Max</th>
+                                    <th>Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <f:for each="{Rows}" as="row">
+                                    <tr>
+                                        <td>{row.uid}</td>
+                                        <td>{row.title}</td>
+                                        <td><span class="badge badge-success">{row.disposed}</span></td>
+                                        <td><span class="badge badge-warning">{row.open}</span></td>
+                                        <td><span class="badge badge-danger">{row.cancelled}</span></td>
+                                        <td><span class="badge badge-info">{row.pending}</span></td>
+                                        <td>{row.shipped}</td>
+                                        <td>{row.not_shippeed}</td>
+                                        <td>{row.club_sold}</td>
+                                        <td>{row.club_max}</td>
+                                        <td>
+                                            <f:link.action action="ticketCheckDetail" arguments="{showUid: row.uid}" class="btn btn-sm btn-primary">
+                                                Details
+                                            </f:link.action>
+                                        </td>
+                                    </tr>
+                                </f:for>
+                            </tbody>
+                        </table>
+                    </f:then>
+                    <f:else>
+                        <div class="alert alert-info">
+                            Keine Tickets gefunden.
+                        </div>
+                    </f:else>
+                </f:if>
+            </div>
+        </div>
+    </div>
+</f:section>
+</html>

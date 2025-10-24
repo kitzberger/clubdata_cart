@@ -1,0 +1,1 @@
+{listItem.productType};{iterator.total};{listItem.datetime};{listItem.title}

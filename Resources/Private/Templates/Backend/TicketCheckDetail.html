@@ -1,0 +1,97 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <div class="tx-clubdatacart-mod">
+        <div class="card">
+            <div class="card-header">
+                <h4>Ticket Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Bezahlte Tickets:</strong> <span class="badge badge-success">{Disposed}</span>
+                </div>
+
+                <f:if condition="{Orders}">
+                    <f:then>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Bestellnummer</th>
+                                    <th>Produkt</th>
+                                    <th>Anzahl</th>
+                                    <th>SKU</th>
+                                    <th>Zahlungsstatus</th>
+                                    <th>Versandstatus</th>
+                                    <th>Kunde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <f:for each="{Orders}" as="order">
+                                    <tr>
+                                        <td>{order.item.orderNumber}</td>
+                                        <td>{order.title}</td>
+                                        <td>{order.count}</td>
+                                        <td>{order.sku}</td>
+                                        <td>
+                                            <f:switch expression="{order.item.payment.status}">
+                                                <f:case value="paid">
+                                                    <span class="badge badge-success">Bezahlt</span>
+                                                </f:case>
+                                                <f:case value="open">
+                                                    <span class="badge badge-warning">Offen</span>
+                                                </f:case>
+                                                <f:case value="canceled">
+                                                    <span class="badge badge-danger">Storniert</span>
+                                                </f:case>
+                                                <f:case value="pending">
+                                                    <span class="badge badge-info">Ausstehend</span>
+                                                </f:case>
+                                                <f:defaultCase>
+                                                    <span class="badge badge-secondary">{order.item.payment.status}</span>
+                                                </f:defaultCase>
+                                            </f:switch>
+                                        </td>
+                                        <td>
+                                            <f:if condition="{order.item.shipping.status} == 'shipped'">
+                                                <f:then>
+                                                    <span class="badge badge-success">Versendet</span>
+                                                </f:then>
+                                                <f:else>
+                                                    <span class="badge badge-warning">{order.item.shipping.status}</span>
+                                                </f:else>
+                                            </f:if>
+                                        </td>
+                                        <td>
+                                            {order.item.billingAddress.lastName}, {order.item.billingAddress.firstName}
+                                        </td>
+                                    </tr>
+                                </f:for>
+                            </tbody>
+                        </table>
+                    </f:then>
+                    <f:else>
+                        <div class="alert alert-info">
+                            Keine Bestellungen gefunden.
+                        </div>
+                    </f:else>
+                </f:if>
+
+                <div class="mt-3">
+                    <f:link.action action="ticketCheck" class="btn btn-secondary">
+                        Zurück zur Übersicht
+                    </f:link.action>
+                </div>
+            </div>
+        </div>
+    </div>
+</f:section>
+</html>

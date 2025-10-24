@@ -1,18 +1,66 @@
-<f:layout name="Backend" />
-<!--	=====================-->
-<f:section name="main">
-<div>
-    <f:form method="post" action="ticketExport" name="ticketExport"  arguments="{format: 'txt'}">
-        Veranstaltungen für Scanner Export:<br>
-        <f:form.select id="programs_export" property="program" multiple="1" size="4" optionLabelField="title" options="{ExportPrograms}"  prependOptionValue="0" />
-        <f:form.submit value="Vereanstaltungsdaten exportieren" />
-    </f:form>
-</div>
-<div>
-    <f:form method="post" action="refundOrders" name="refundOrders">
-        Käufe Rückerstatten<br>
-        <f:form.select id="programs_refund" property="program" multiple="1" size="4" optionLabelField="title" options="{RefundPrograms}"  prependOptionValue="0" />
-        <f:form.submit value="Vereanstaltungsdaten exportieren" />
-    </f:form>
-</div>
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <div class="tx-clubdatacart-mod">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <f:form method="post" action="ticketExport" name="ticketExport" format="txt">
+                    <f:form.hidden property="format" value="txt" />
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Scanner Export</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="programs_export">Veranstaltungen für Scanner Export:</label>
+                                <f:form.select id="programs_export"
+                                               property="program"
+                                               multiple="1"
+                                               size="4"
+                                               class="form-control"
+                                               optionLabelField="title"
+                                               options="{exportPrograms}"
+                                               prependOptionValue="0" />
+                            </div>
+                            <f:form.submit value="Veranstaltungsdaten exportieren" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </f:form>
+            </div>
+
+            <div class="col-md-6">
+                <f:form method="post" action="refundOrders" name="refundOrders">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Rückerstattung</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="programs_refund">Käufe Rückerstatten:</label>
+                                <f:form.select id="programs_refund"
+                                               property="program"
+                                               multiple="1"
+                                               size="4"
+                                               class="form-control"
+                                               optionLabelField="title"
+                                               options="{refundPrograms}"
+                                               prependOptionValue="0" />
+                            </div>
+                            <f:form.submit value="Käufe rückerstatten" class="btn btn-warning" />
+                        </div>
+                    </div>
+                </f:form>
+            </div>
+        </div>
+    </div>
 </f:section>
+</html>

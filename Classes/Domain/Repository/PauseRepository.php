@@ -26,7 +26,7 @@ class PauseRepository extends Repository
     {
         $query = $this->createQuery();
         $where = 'where uid =' . $uid;
-        $query->statement('SELECT uid,title,datetime from tx_ckclubdata_domain_model_program ' . $where);
+        $query->statement('SELECT uid,title,datetime from tx_clubdata_domain_model_program ' . $where);
         $rows = $query->execute(true);
         return $rows;
     }

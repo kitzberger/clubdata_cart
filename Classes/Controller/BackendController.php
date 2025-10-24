@@ -9,7 +9,14 @@ use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
 use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -21,7 +28,10 @@ class BackendController extends ActionController
         protected ProgramRepository $programRepository,
         protected ItemRepository $itemRepository,
         protected ProductRepository $productRepository,
-        ConfigurationManagerInterface $configurationManager
+        ConfigurationManagerInterface $configurationManager,
+        private readonly ModuleTemplateFactory $moduleTemplateFactory,
+        private readonly PageRenderer $pageRenderer,
+        private readonly ViewFactoryInterface $viewFactory
     ) {
     }
 
@@ -32,31 +42,34 @@ class BackendController extends ActionController
             'Cart'
         );
 
-        $this->settings['cart']['pid'] = $cartConfiguration['settings']['cart']['pid'];
+        if (isset($cartConfiguration['settings']['cart']['pid'])) {
+            $this->settings['cart']['pid'] = $cartConfiguration['settings']['cart']['pid'];
+        }
     }
 
+    // TODO why called interface? Isn't that a classic indexAction()?
     public function interfaceAction(): ResponseInterface
     {
-        $this->now = $this->settings['scanner']['showFrom'];
+        $this->now = $this->settings['scanner']['showFrom'] ?? 'now';
 
-        $filtered_programs_export = $this->filterData();
-
-        $this->view->assign('ExportPrograms', $filtered_programs_export);
+        $exportPrograms = $this->filterData();
 
         $usercheck = false;
-        $denies = explode(',', $this->settings['refund']['denyGroups']);
-        $groups = $GLOBALS['BE_USER']->user['usergroup'];
+        $denies = explode(',', $this->settings['refund']['denyGroups'] ?? '');
+        $groups = $GLOBALS['BE_USER']->user['usergroup'] ?? '';
 
         foreach ($denies as $deny) {
-            if (strpos($groups, $deny) !== false) {
+            if ($deny && strpos($groups, $deny) !== false) {
                 $usercheck = true;
             }
         }
+        $refundPrograms = [];
         if (!$usercheck) {
-            $this->now = $this->settings['refund']['showFrom'];
-            $filtered_programs_refund = $this->filterData();
-            $this->view->assign('RefundPrograms', $filtered_programs_refund);
+            $this->now = $this->settings['refund']['showFrom'] ?? 'now';
+            $refundPrograms = $this->filterData();
         }
+
+        // TODO: necessary!?
         $options = [];
         $options[] = [
             'id' => 'future',
@@ -67,8 +80,14 @@ class BackendController extends ActionController
             'title' => 'alle'
         ];
 
-        $this->view->assign('Options', $options);
-        return $this->htmlResponse();
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Cart Interface');
+
+        $moduleTemplate->assign('exportPrograms', $exportPrograms);
+        $moduleTemplate->assign('refundPrograms', $refundPrograms);
+        $moduleTemplate->assign('options', $options);
+
+        return $moduleTemplate->renderResponse('Backend/Interface');
     }
 
     protected function filterData()
@@ -92,12 +111,21 @@ class BackendController extends ActionController
         $failed = [];
         foreach ($orders as $order) {
             $item = $order->getItem();
-            if ($item->getShipping()->getStatus() == 'shipped' &&
-                $item->getPayment()->getStatus() == 'paid') {
-                $filtered[] = $order;
-            } else {
+
+            if (is_null($item)) {
                 $failed[] = $order;
+            } else {
+                if ($item->getShipping()->getStatus() == 'shipped' &&
+                    $item->getPayment()->getStatus() == 'paid') {
+                    $filtered[] = $order;
+                } else {
+                    $failed[] = $order;
+                }
             }
+        }
+
+        if (!count($failed)) {
+            dd($failed);
         }
 
         return $filtered;
@@ -175,9 +203,14 @@ class BackendController extends ActionController
             }
         }
 
-        $this->view->assign('Rows', $rows);
-        return $this->htmlResponse();
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Ticket Check');
+
+        $moduleTemplate->assign('Rows', $rows);
+
+        return $moduleTemplate->renderResponse('Backend/TicketCheck');
     }
+
     public function ticketCheckDetailAction(): ResponseInterface
     {
         $uids = [];
@@ -215,9 +248,14 @@ class BackendController extends ActionController
                     break;
             }
         }
-        $this->view->assign('Orders', $orders);
-        $this->view->assign('Disposed', $disposed);
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Ticket Check Detail');
+
+        $moduleTemplate->assign('Orders', $orders);
+        $moduleTemplate->assign('Disposed', $disposed);
+
+        return $moduleTemplate->renderResponse('Backend/TicketCheckDetail');
     }
 
     public function ticketCheckWriteAction(): void
@@ -244,7 +282,7 @@ class BackendController extends ActionController
     public function ticketExportAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
-        $format = $args['ticketExport']['format'];
+        $format = $args['ticketExport']['format'] ?? 'html';
         $uids = [];
         $tickets = [];
         $failed = [];
@@ -254,20 +292,13 @@ class BackendController extends ActionController
             $uids[] = $uid;
         }
 
+        if (empty($uids)) {
+            $this->addFlashMessages('Can\'t export empty data!', 'Warning', ContextualFeedbackSeverity::WARNING);
+            return $this->redirect('interface');
+        }
+
         $now = 'tomorrow - 1 second';
         $orders = $this->productRepository->findSku($uids);
-
-        if ($format == 'txt') {
-            $title = 'Scanner-Export-' . $orders[0]->getTitle();
-            $filename = $title . '.' . $format;
-
-            $this->response->setHeader('Content-Type', 'text/' . $format, true);
-            $this->response->setHeader('Content-Description', 'File transfer', true);
-            $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"', true);
-
-            $this->view = GeneralUtility::makeInstance(StandaloneView::class);
-            $this->view->setTemplatePathAndFilename('EXT:laboratorium/Resources/Private/Extensions/clubdata_cart/Templates/Backend/TicketExport.csv');
-        }
 
         foreach ($orders as $order) {
             if ($order->getItem()->getShipping()->getStatus() == 'shipped'
@@ -301,7 +332,7 @@ class BackendController extends ActionController
             $message = "Achtung: doppelte Ticketnummern vorhanden";
         }
 
-        if ($format != 'txt') { // Druckausgabe
+        if ($format === 'html') { // Druckausgabe
             $names = [];
             foreach ($filtered_tickets as $object) {
                 if ($object->getItem()) {
@@ -311,25 +342,54 @@ class BackendController extends ActionController
 
             array_multisort($names, SORT_ASC, $filtered_tickets);
 
-            $fehler = 0;
+            $failures = 0;
             foreach ($failed as $order) {
                 if ($order->getItem()->getShipping()->getStatus() != 'shipped' ||
                     $order->getItem()->getPayment()->getStatus() != 'paid') {
-                    $fehler += $order->getCount();
+                    $failures += $order->getCount();
                 }
             }
-        }
-        $this->view->assign('Orders', $filtered_tickets);
-        $this->view->assign('Message', $message);
-        $this->view->assign('Fehler', $fehler);
 
-        return $this->htmlResponse();
+            $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+            $moduleTemplate->setTitle('Ticket Export');
+            $moduleTemplate->assignMultiple([
+                'orders' => $filtered_tickets,
+                'message' => $message,
+                'failures' => $failures,
+            ]);
+            return $moduleTemplate->renderResponse('Backend/TicketExport');
+        } else {
+            $clubdataCartConfiguration = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+                'ClubdataCart'
+            );
+            $viewFactoryData = new ViewFactoryData(
+                templateRootPaths: $clubdataCartConfiguration['view']['templateRootPaths'],
+                partialRootPaths: $clubdataCartConfiguration['view']['partialRootPaths'],
+                layoutRootPaths: $clubdataCartConfiguration['view']['layoutRootPaths'],
+                request: $this->request,
+                format: $format
+            );
+            $view = $this->viewFactory->create($viewFactoryData);
+            $view->assign('orders', $filtered_tickets);
+            $output = $view->render('Backend/TicketExport');
+
+            $title = 'Scanner-Export-' . ($orders[0]?->getTitle() ?? 'Unknown');
+            $filename = $title . '.' . $format;
+
+            return $this->responseFactory->createResponse()
+                ->withHeader('Content-Type', 'text/html; charset=utf-8')
+                ->withHeader('Content-Description', 'File transfer')
+                ->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+                ->withBody($this->streamFactory->createStream($output));
+        }
     }
 
     public function refundCheckOrdersAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
         $sku = $args['refundOrders']['program'];
+        $countOrders = 0;
         if ($sku) {
             $filtered_orders = [];
             $orders = $this->itemRepository->findAll();
@@ -342,10 +402,16 @@ class BackendController extends ActionController
                     }
                 }
             }
-            $this->view->assign('CountOrders', count($filtered_orders));
-            $this->view->assign('Sku', $sku);
+            $countOrders = count($filtered_orders);
         }
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Refund Check Orders');
+
+        $moduleTemplate->assign('CountOrders', $countOrders);
+        $moduleTemplate->assign('Sku', $sku ?? '');
+
+        return $moduleTemplate->renderResponse('Backend/RefundCheckOrders');
     }
 
     public function refundOrdersAction(): ResponseInterface
@@ -368,7 +434,11 @@ class BackendController extends ActionController
                 $this->handleRefund($order, $sku);
             }
         }
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Refund Orders');
+
+        return $moduleTemplate->renderResponse('Backend/RefundOrders');
     }
 
     public function refundOrderAction(Item $orderItem): ResponseInterface
@@ -376,7 +446,11 @@ class BackendController extends ActionController
         if ($orderItem->getPayment()->getStatus() == 'paid') {
             $this->handleRefund($orderItem);
         }
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('Refund Order');
+
+        return $moduleTemplate->renderResponse('Backend/RefundOrder');
     }
 
     public function handleRefund(Item $orderItem, $sku = ''): void
@@ -416,5 +490,18 @@ class BackendController extends ActionController
         // in key steht die prüfziffer - an den code anhängen
         $code .= $key;
         return $code;
+    }
+
+    private function addFlashMessages($message, $header, $severity)
+    {
+        $message = GeneralUtility::makeInstance(FlashMessage::class,
+           $message,
+           $header,
+           $severity,
+           true
+        );
+        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $messageQueue = $flashMessageService->getMessageQueueByIdentifier();
+        $messageQueue->addMessage($message);
     }
 }

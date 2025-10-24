@@ -1,3 +1,11 @@
-<f:for each="{Orders}" as="listItem">
-    <f:render partial="Partials/ExportTicketItem" arguments="{listItem:listItem,settings:settings,iterator:iterator}" />
-</f:for>
+<f:if condition="{message}">
+    <p class="alert alert-warning">
+        {message}
+    </p>
+</f:if>
+
+<table>
+    <f:for each="{orders}" as="listItem" iteration="iterator">
+        <f:render partial="Partials/TicketExportItem" arguments="{listItem:listItem,settings:settings,iterator:iterator}" />
+    </f:for>
+</table>

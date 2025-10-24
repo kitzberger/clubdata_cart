@@ -2,9 +2,10 @@
 
 namespace Medpzl\ClubdataCart\Domain\Repository\Order;
 
+use Extcode\Cart\Domain\Repository\Order\ProductRepository as CartOrderProductRepository;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
-class ProductRepository extends \Extcode\Cart\Domain\Repository\Order\ProductRepository
+class ProductRepository extends CartOrderProductRepository
 {
     public function findSku($uids)
     {

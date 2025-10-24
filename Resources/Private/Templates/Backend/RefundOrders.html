@@ -1,0 +1,36 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <div class="tx-clubdatacart-mod">
+        <div class="card">
+            <div class="card-header">
+                <h4>Rückerstattung durchgeführt</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <strong>Erfolg!</strong> Die Rückerstattungen wurden verarbeitet.
+                </div>
+
+                <div class="alert alert-info">
+                    Bitte überprüfen Sie die Zahlungsstatus in Ihrem Zahlungsanbieter.
+                </div>
+
+                <div class="mt-3">
+                    <f:link.action action="interface" class="btn btn-primary">
+                        Zurück zur Übersicht
+                    </f:link.action>
+                </div>
+            </div>
+        </div>
+    </div>
+</f:section>
+</html>

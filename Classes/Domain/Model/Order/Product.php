@@ -2,6 +2,8 @@
 
 namespace Medpzl\ClubdataCart\Domain\Model\Order;
 
-class Product extends \Extcode\Cart\Domain\Model\Order\Product
+use Extcode\Cart\Domain\Model\Order\Product as CartOrderProduct;
+
+class Product extends CartOrderProduct
 {
 }

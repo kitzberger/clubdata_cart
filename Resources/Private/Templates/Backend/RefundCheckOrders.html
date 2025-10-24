@@ -1,0 +1,60 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <f:flashMessages />
+
+    <div class="tx-clubdatacart-mod">
+        <div class="card">
+            <div class="card-header">
+                <h4>Rückerstattung prüfen</h4>
+            </div>
+            <div class="card-body">
+                <f:if condition="{Sku}">
+                    <f:then>
+                        <div class="alert alert-info">
+                            <strong>SKU:</strong> {Sku}<br>
+                            <strong>Anzahl Bestellungen:</strong> {CountOrders}
+                        </div>
+
+                        <f:if condition="{CountOrders} > 0">
+                            <f:then>
+                                <div class="alert alert-warning">
+                                    <strong>Achtung!</strong> Es wurden {CountOrders} Bestellung(en) gefunden, die rückerstattet werden können.
+                                </div>
+
+                                <f:form method="post" action="refundOrders" name="refundOrders">
+                                    <f:form.hidden property="program" value="{Sku}" />
+                                    <f:form.submit value="Rückerstattung durchführen" class="btn btn-warning" />
+                                </f:form>
+                            </f:then>
+                            <f:else>
+                                <div class="alert alert-success">
+                                    Keine Bestellungen zur Rückerstattung gefunden.
+                                </div>
+                            </f:else>
+                        </f:if>
+                    </f:then>
+                    <f:else>
+                        <div class="alert alert-info">
+                            Bitte wählen Sie eine Veranstaltung aus.
+                        </div>
+                    </f:else>
+                </f:if>
+
+                <div class="mt-3">
+                    <f:link.action action="interface" class="btn btn-secondary">
+                        Zurück zur Übersicht
+                    </f:link.action>
+                </div>
+            </div>
+        </div>
+    </div>
+</f:section>
+</html>

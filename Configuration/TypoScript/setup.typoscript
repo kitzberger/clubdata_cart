@@ -15,8 +15,8 @@ plugin.tx_clubdatacart {
     }
 
     persistence {
-        storagePid < plugin.tx_ckclubdata.persistence.storagePid
+        storagePid < plugin.tx_clubdata.persistence.storagePid
     }
 }
 
-module.tx_clubdatacart  < plugin.tx_ckclubdata
+module.tx_clubdatacart  < plugin.tx_clubdata
