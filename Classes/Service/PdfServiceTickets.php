@@ -2,11 +2,16 @@
 
 namespace Medpzl\ClubdataCart\Service;
 
+use Extcode\Cart\Domain\Model\Order\Item;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
-use Medpzl\ClubdataCart\Utility\OrderUtility;
+use Extcode\CartPdf\Service\PdfService;
+use Extcode\TCPDF\Service\TsTCPDF;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
+use Medpzl\ClubdataCart\Utility\OrderUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
-class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
+class PdfServiceTickets extends PdfService
 {
     public function __construct(
         protected ProgramRepository $programRepository
@@ -15,17 +20,17 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
 
     /**
      * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
+     * @param Item $orderItem
      */
     protected function renderPdf(OrderItem $orderItem, string $pdfType): void
     {
         $pluginSettings = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'cartpdf'
         );
 
-        $this->pdf = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-            \Extcode\TCPDF\Service\TsTCPDF::class
+        $this->pdf = GeneralUtility::makeInstance(
+            TsTCPDF::class
         );
         $this->pdf->setSettings($pluginSettings);
         $this->pdf->setCartPdfType($pdfType . 'Pdf');
@@ -119,7 +124,7 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
 
     /**
      * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
+     * @param Item $orderItem
      */
     protected function renderTicket($pdfType, $orderItem)
     {
@@ -139,7 +144,7 @@ class PdfServiceTickets extends \Extcode\CartPdf\Service\PdfService
      * Render Cart Body
      *
      * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
+     * @param Item $orderItem
      *
      * @return string
      */

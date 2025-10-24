@@ -2,7 +2,9 @@
 
 namespace Medpzl\ClubdataCart\Domain\Model;
 
-class Pause extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
+class Pause extends AbstractEntity
 {
     /**
      * title

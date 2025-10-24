@@ -2,6 +2,8 @@
 
 namespace Medpzl\ClubdataCart\Utility;
 
+use Extcode\Cart\Domain\Model\Cart\Cart;
+use Extcode\Cart\Domain\Model\Order\Item;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
@@ -19,14 +21,14 @@ class OrderUtility
     /**
      * OrderUtility Item
      *
-     * @var \Extcode\Cart\Domain\Model\Order\Item
+     * @var Item
      */
     protected $orderItem = null;
 
     /**
      * Cart
      *
-     * @var \Extcode\Cart\Domain\Model\Cart\Cart
+     * @var Cart
      */
     protected $cart = null;
 

@@ -2,12 +2,15 @@
 
 namespace Medpzl\ClubdataCart\Domain\Repository;
 
-class PauseRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
+
+class PauseRepository extends Repository
 {
     public function findPause($date)
     {
         $query = $this->createQuery();
-        $query->setOrderings(['fromdate' => \TYPO3\CMS\Extbase\Persistence\QueryInterface::ORDER_ASCENDING]);
+        $query->setOrderings(['fromdate' => QueryInterface::ORDER_ASCENDING]);
         $and_constraints = [];
         $and_constraints[] = $query->greaterThanOrEqual('todate', $date);
         $and_constraints[] = $query->lessThan('fromdate', $date);

@@ -2,6 +2,8 @@
 
 namespace Medpzl\ClubdataCart\Domain\Repository;
 
-class ClubProgramRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+use TYPO3\CMS\Extbase\Persistence\Repository;
+
+class ClubProgramRepository extends Repository
 {
 }

@@ -4,12 +4,15 @@ namespace Medpzl\ClubdataCart\Controller;
 
 use Extcode\Cart\Domain\Model\Order\Item;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository;
+use Medpzl\ClubdataCart\Domain\Model\Order\Product;
 use Medpzl\ClubdataCart\Domain\Repository\Order\ProductRepository;
 use Medpzl\ClubdataCart\Domain\Repository\PauseRepository;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class BackendController extends ActionController
 {
@@ -96,8 +99,7 @@ class BackendController extends ActionController
         return $filtered;
     }
 
-
-    public function ticketCheckAction(): \Psr\Http\Message\ResponseInterface
+    public function ticketCheckAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
         $what = $args['ticketCheck']['what'];
@@ -177,9 +179,7 @@ class BackendController extends ActionController
         $uids = [];
         $uid = $this->request->getArgument('showUid');
         $uids[] = $uid;
-        //$program = $this->programRepository->findUid($uid);
         $orders = $this->productRepository->findSku($uids);
-        //\TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($orders);
         $disposed = 0;
         $open = 0;
         $cancelled = 0;
@@ -261,7 +261,7 @@ class BackendController extends ActionController
             $this->response->setHeader('Content-Description', 'File transfer', true);
             $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"', true);
 
-            $this->view = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Fluid\\View\\StandaloneView');
+            $this->view = GeneralUtility::makeInstance(StandaloneView::class);
             $this->view->setTemplatePathAndFilename('EXT:laboratorium/Resources/Private/Extensions/clubdata_cart/Templates/Backend/TicketExport.csv');
         }
 
@@ -273,8 +273,8 @@ class BackendController extends ActionController
                     $tickets[] = $order;
                     for ($i = 1; $i < $order->getCount(); $i++) {
                         $code = $this->addEanCheck($ticket_number += 1);
-                        $orderProduct = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
-                            \Medpzl\ClubdataCart\Domain\Model\Order\Product::class,
+                        $orderProduct = GeneralUtility::makeInstance(
+                            Product::class,
                             $order->getSku(),
                             $order->getTitle(),
                             $order->getCount()
@@ -289,11 +289,7 @@ class BackendController extends ActionController
         }
 
         foreach ($tickets as $ticket) {
-            // Filter deaktiviert wegegen Dupletten 05.11.19
-            //if (!in_array($ticket->getProductType(), $numbers)) {
-            //$numbers[] = $ticket->getProductType();
             $filtered_tickets[] = $ticket;
-            //}
         }
 
         $message = '';
@@ -348,7 +344,7 @@ class BackendController extends ActionController
         return $this->htmlResponse();
     }
 
-    public function refundOrdersAction(): \Psr\Http\Message\ResponseInterface
+    public function refundOrdersAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
         $sku = $args['refundOrders']['program']; // find expects list
@@ -397,20 +393,6 @@ class BackendController extends ActionController
         // $this->eventDispatcher->dispatch($event);
         exit;
     }
-
-
-    // /**
-    //  * action list
-    //  *
-    //  * @return void
-    //  */
-    // public function listAction(): ResponseInterface
-    // {
-    //     $orders = $this->productRepository->findAll();
-
-    //     $this->view->assign('Orders', $orders);
-    //     return $this->htmlResponse();
-    // }
 
     protected function addEanCheck($code)
     {
