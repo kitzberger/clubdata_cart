@@ -47,9 +47,9 @@ final class RetrieveProductsFromRequest
             $taxClass = GeneralUtility::makeInstance(
                 TaxClass::class,
                 (int)$taxClassKey,
-                (string)$taxClass[$taxClassKey]['value'],
-                (float)$taxClass[$taxClassKey]['calc'],
-                (string)$taxClass[$taxClassKey]['name']
+                (string)$taxClasses[$taxClassKey]['value'],
+                (float)$taxClasses[$taxClassKey]['calc'],
+                (string)$taxClasses[$taxClassKey]['name']
             );
 
             $cartProduct = new Product(
