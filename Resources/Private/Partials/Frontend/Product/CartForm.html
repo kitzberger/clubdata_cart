@@ -1,0 +1,12 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:form pageUid="{settings.cart.pid}"
+        id="add-product-form"
+        extensionName="Cart" pluginName="Cart" controller="Cart\Product" action="add"
+        method="post">
+    <input type="hidden" name="tx_cart_cart[productId]" value="{product.uid}">
+    <input type="hidden" name="tx_cart_cart[productType]" value="program">
+    <input type="hidden" name="tx_cart_cart[quantity]" value="1">
+    <input type="submit" class="btn btn-sm btn-secondary state tickets" value="{product.state.title}">
+</f:form>

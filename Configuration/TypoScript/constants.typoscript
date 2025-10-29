@@ -1,0 +1,6 @@
+plugin.tx_clubdatacart {
+    view {
+        partialRootPath = EXT:clubdata_cart/Resources/Private/Partials/Frontend/
+    }
+}
+

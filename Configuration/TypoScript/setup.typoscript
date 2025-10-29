@@ -18,3 +18,12 @@ module.tx_clubdatacart {
         scanner.showFrom = today - 1 week
     }
 }
+
+plugin.tx_clubdata {
+    view {
+        partialRootPaths  {
+            # Add this extensions partials folder to the stack of EXT:clubdata
+            1 = {$plugin.tx_clubdatacart.view.partialRootPath}
+        }
+    }
+}
