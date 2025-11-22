@@ -16,8 +16,7 @@ final class RetrieveProductsFromRequest
     public function __construct(
         private ProgramRepository $programRepository,
         private ConfigurationManagerInterface $configurationManager
-    ) {
-    }
+    ) {}
 
     public function __invoke(RetrieveProductsFromRequestEvent $event): void
     {
@@ -39,29 +38,29 @@ final class RetrieveProductsFromRequest
             $stock = 0;
             $handleStock = false;
 
-            if ($program->getmaxTickets() > 0) {
+            if ($program->getMaxTickets() > 0) {
                 $handleStock = true;
-                $stock = $program->getmaxTickets() - $program->getsoldTickets();
+                $stock = $program->getMaxTickets() - $program->getSoldTickets();
             }
 
             $taxClass = GeneralUtility::makeInstance(
                 TaxClass::class,
-                (int)$taxClassKey,
-                (string)$taxClasses[$taxClassKey]['value'],
-                (float)$taxClasses[$taxClassKey]['calc'],
-                (string)$taxClasses[$taxClassKey]['name']
+                id: (int)$taxClassKey,
+                value: (string)$taxClasses[$taxClassKey]['value'],
+                calc: (float)$taxClasses[$taxClassKey]['calc'],
+                title: (string)$taxClasses[$taxClassKey]['name']
             );
 
             $cartProduct = new Product(
-                'vitual', // productType
-                $program->getUid(), //productId
-                (string)$program->getUid(), //sku
-                $program->getTitle() . ' ' . $program->getDatetime()->format('d.m.y H:i'),
-                (float)$program->getPriceB(),
-                $taxClass,
-                $quantity,
-                false, // isNetPrice
-                null // $feVariant
+                productType: 'vitual', // TODO: what is vitual?!
+                productId: $program->getUid(),
+                sku: (string)$program->getUid(),
+                title: $program->getTitle() . ' ' . $program->getDatetime()->format('d.m.y H:i'),
+                price: (float)$program->getPriceB(),
+                taxClass: $taxClass,
+                quantity: $quantity,
+                isNetPrice: false,
+                feVariant: null
             );
             $cartProduct->setStock($stock);
             $cartProduct->setHandleStock($handleStock);
