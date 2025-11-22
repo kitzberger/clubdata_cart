@@ -4,18 +4,35 @@ namespace Medpzl\ClubdataCart\Service;
 
 use Extcode\Cart\Domain\Model\Order\Item;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
-use Extcode\CartPdf\Service\PdfService;
+use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
+use Extcode\CartPdf\Service\PdfService as CartPdfService;
 use Extcode\TCPDF\Service\TsTCPDF;
 use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use Medpzl\ClubdataCart\Utility\OrderUtility;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
-class PdfServiceTickets extends PdfService
+class PdfService extends CartPdfService
 {
     public function __construct(
-        protected ProgramRepository $programRepository
+        private readonly ConfigurationManager $configurationManager,
+        private readonly OrderItemRepository $orderItemRepository,
+        private readonly PersistenceManager $persistenceManager,
+        private readonly ResourceFactory $resourceFactory,
+        private readonly StorageRepository $storageRepository,
+        private readonly ProgramRepository $programRepository,
     ) {
+        parent::__construct(
+            $configurationManager,
+            $orderItemRepository,
+            $persistenceManager,
+            $resourceFactory,
+            $storageRepository,
+        );
     }
 
     /**

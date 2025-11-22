@@ -26,3 +26,9 @@ services:
     tags:
       - name: event.listener
         identifier: 'clubdata_cart-CheckStock'
+
+  # Use Symfony DI to extend EXT:cart_pdf's PdfService
+  # See https://github.com/derhansen/xclass_di/issues/1#issuecomment-3133434777
+  Extcode\CartPdf\Service\PdfService:
+    public: true
+    alias: Medpzl\ClubdataCart\Service\PdfService
