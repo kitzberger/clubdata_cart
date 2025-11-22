@@ -21,3 +21,8 @@ services:
     tags:
       - name: event.listener
         identifier: 'clubdata_cart-ChangeOrderItemBeforeSaving'
+
+  Medpzl\ClubdataCart\EventListener\CheckStock:
+    tags:
+      - name: event.listener
+        identifier: 'clubdata_cart-CheckStock'
