@@ -9,6 +9,7 @@ use Extcode\CartPdf\Service\PdfService as CartPdfService;
 use Extcode\CartPdf\Service\TcpdfWrapper;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
+use Medpzl\Clubdata\Domain\Repository\ProgramRepository;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -36,6 +37,7 @@ class PdfService extends CartPdfService
         private readonly PersistenceManager $persistenceManager,
         private readonly ResourceFactory $resourceFactory,
         private readonly StorageRepository $storageRepository,
+        private readonly ProgramRepository $programRepository,
     ) {
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
             $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
@@ -114,7 +116,14 @@ class PdfService extends CartPdfService
             }
         }
 
-        $this->pdf->AddPage();
+        // Modification Begin
+        if ($pdfType == 'delivery') {
+            $this->pdf->setAutoPageBreak(false, 0);
+            $this->pdf->AddPage('L', [210,99]);
+        } else {
+            $this->pdf->AddPage();
+        }
+        // Modification End
 
         $font = 'Helvetica';
 
@@ -143,7 +152,14 @@ class PdfService extends CartPdfService
         }
 
         $this->pdf->setDrawColorArray($colorArray);
-        $this->renderMarker();
+
+        // Modification Begin
+        if ($pdfType == 'delivery') {
+            $this->renderTicket($pdfType, $orderItem);
+        } else {
+            $this->renderMarker();
+        }
+        // Modification End
 
         if (is_array($this->pdfSettings['letterhead']['html'] ?? null)) {
             foreach ($this->pdfSettings['letterhead']['html'] as $partName => $partConfig) {
@@ -161,7 +177,11 @@ class PdfService extends CartPdfService
             }
         }
 
-        $this->renderCart($orderItem, $pdfType);
+        // Modification Begin
+        if ($pdfType != 'delivery') {
+            $this->renderCart($orderItem, $pdfType);
+        }
+        // Modification End
 
         if (is_array($this->pdfSettings['body']['after']['html'] ?? null)) {
             foreach ($this->pdfSettings['body']['after']['html'] as $partName => $partConfig) {
@@ -276,5 +296,85 @@ class PdfService extends CartPdfService
         $fileReference->setOriginalResource($falFileReference);
 
         return $fileReference;
+    }
+
+    // -----------------
+    // Custom functions
+    // -----------------
+
+    protected function renderTicket(string $pdfType, OrderItem $orderItem)
+    {
+        $pdfType .= 'Pdf';
+
+        $config = $this->pdfSettings['body']['order'];
+        $config['height'] = 0;
+
+        if (!$config['spacingY'] && !$config['positionY']) {
+            $config['spacingY'] = 5;
+        }
+
+        $content = $this->renderTicketBody($pdfType, $orderItem);
+    }
+
+    protected function renderTicketBody(string $pdfType, OrderItem $orderItem)
+    {
+        $bodyOut = '';
+        $ypos = 30;
+        $anz = 0;
+        foreach ($orderItem->getProducts() as $product) {
+            $program = $this->programRepository->findByUid($product->getSku());
+            $base = substr($product->getproductType(), 0, -1);
+            $code = $product->getproductType();
+            for ($i = 0; $i < $product->getCount(); $i++) {
+                $mod = false;
+                //if($i+1 % 4 == 0) {
+                if ($anz) {
+                    $mod = true;
+                    $this->pdf->addPage('L', [210,99]);
+                    $ypos = 30;
+                }
+                if ($i) {
+                    $code = OrderUtility::addEanCheck($base += 1);
+                }
+
+                //define barcode style
+                $style = [
+                    'position' => '',
+                    'align' => 'C',
+                    'stretch' => false,
+                    'fitwidth' => true,
+                    'cellfitalign' => '',
+                    'border' => false,
+                    'hpadding' => 'auto',
+                    'vpadding' => 'auto',
+                    'fgcolor' => [0, 0, 0],
+                    'bgcolor' => false, //array(255,255,255),
+                    'text' => true,
+                    'font' => 'helvetica',
+                    'fontsize' => 8,
+                    'stretchtext' => 4
+                ];
+                foreach ($this->pdfSettings['ticket'] as $partName => $partConfig) {
+                    if ($anz && !$mod) {
+                        $partConfig['positionY'] = $anz * 80;
+                    }
+                    $templatePath = '/TicketPdf/';
+                    $assignToView = [
+                        'product' => $product,
+                        'program' => $program,
+                        'config' => $partConfig,
+                        'code' => $code,
+                        'orderItem' => $orderItem
+                    ];
+
+                    $this->pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                }
+
+                $this->pdf->write1DBarcode($code, 'EAN13', '150', $ypos, '', 18, 0.4, $style, 'N');
+                $anz++;
+            }
+        }
+
+        return $bodyOut;
     }
 }
