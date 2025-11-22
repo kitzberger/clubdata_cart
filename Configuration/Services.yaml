@@ -17,3 +17,7 @@ services:
       - name: event.listener
         identifier: 'clubdata_cart-RetrieveProductsFromRequest'
 
+  Medpzl\ClubdataCart\EventListener\ChangeOrderItemBeforeSaving:
+    tags:
+      - name: event.listener
+        identifier: 'clubdata_cart-ChangeOrderItemBeforeSaving'

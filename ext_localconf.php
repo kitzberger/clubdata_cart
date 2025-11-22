@@ -10,13 +10,6 @@ $dispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
 
 $dispatcher->connect(
     'Extcode\Cart\Utility\OrderUtility',
-    'changeOrderItemBeforeSaving',
-    'Medpzl\ClubdataCart\Utility\OrderUtility',
-    'changeOrderItemBeforeSaving'
-);
-
-$dispatcher->connect(
-    'Extcode\Cart\Utility\OrderUtility',
     'checkStock',
     'Medpzl\ClubdataCart\Utility\OrderUtility',
     'checkStock'

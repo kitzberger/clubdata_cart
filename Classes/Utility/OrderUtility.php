@@ -46,40 +46,16 @@ class OrderUtility
         protected ConfigurationManagerInterface $configurationManager,
         private UriBuilder $uriBuilder
     ) {
-        $this->cartConf = $this->configurationManager->getConfiguration(
+        $cartConf = $this->configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'Cart'
         );
+        $this->cartPid = $cartConf['settings']['cart']['pid'];
+
         $this->settings = $this->configurationManager->getConfiguration(
             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
             'ClubdataCart'
         );
-    }
-
-    /**
-     * Handle Payment - Signal Slot Function
-     *
-     * @param array $params
-     *
-     * @return array
-     */
-    public function changeOrderItemBeforeSaving($params): void
-    {
-        foreach ($params['orderItem']->getProducts() as $product) {
-            $program = $this->programRepository->findByUid($product->getSku());
-            $sold = $program->getsoldTickets();
-            $want = $product->getCount();
-            $new = $sold;
-            $init = $new;
-            $new += $want;
-            $init++; //startnummer Neues Ticket
-            $counter = $this->settings['ticket']['numberPrefix'] . sprintf($this->settings['ticket']['numberFormat'], $init); // Kartenzähler
-            $program_date = $program->getDateTime()->format('ymdH');
-            $ticket_number = self::addEanCheck($program_date . $counter);
-            $program->setsoldTickets($new);
-            $product->setproductType($ticket_number);
-            $this->programRepository->update($program);
-        }
     }
 
     /**
