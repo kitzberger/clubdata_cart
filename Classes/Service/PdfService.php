@@ -324,8 +324,8 @@ class PdfService extends CartPdfService
         $anz = 0;
         foreach ($orderItem->getProducts() as $product) {
             $program = $this->programRepository->findByUid($product->getSku());
-            $base = substr($product->getproductType(), 0, -1);
-            $code = $product->getproductType();
+            $base = substr($product->getProductType(), 0, -1);
+            $code = $product->getProductType();
             for ($i = 0; $i < $product->getCount(); $i++) {
                 $mod = false;
                 //if($i+1 % 4 == 0) {
